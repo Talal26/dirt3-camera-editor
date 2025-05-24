@@ -1,0 +1,64 @@
+Code,Name,Discipline,Class
+c4r,Citroen C4 WRC,RALLY,PRO
+ffr,Ford Fiesta RS WRC,RALLY,PRO
+for,Ford Focus RS WRC,RALLY,PRO
+mcr,Mini Countryman Rally Edition,RALLY,PRO
+cr4,Colin McRae R4,RALLY,OPEN
+fra,Ford Fiesta Open Class,RALLY,OPEN
+kbe,Ken Block Ford Escort Mk2,RALLY,OPEN
+mer,Mitsubishi Lancer Evolution X,RALLY,OPEN
+n12,Subaru Impreza WRX STI N12,RALLY,OPEN
+sti,Subaru Impreza WRX STI SRT USA,RALLY,OPEN
+pun,Abarth Grande Punto S2000,RALLY,S2000
+207,Peugeot 207 S2000,RALLY,S2000
+ers,Ford Escort RS Cosworth,RALLY,90S
+ldi,Lancia Delta HF Integrale,RALLY,90S
+gt4,Toyota Celica GT Four,RALLY,90S
+aqb,Audi Sport Quattro Rallye,RALLY,GROUPB
+rsb,Ford RS200,RALLY,GROUPB
+lds,Lancia Delta S4,RALLY,GROUPB
+6rb,MG Metro 6R4,RALLY,GROUPB
+20b,Peugeot 205 T16 Evo2,RALLY,GROUPB
+555,1995 Subaru Impreza WRX STI,RALLY,80S
+m3r,BMW M3,RALLY,80S
+srs,Ford Sierra Cosworth RS500,RALLY,80S
+mta,Opel Manta 400,RALLY,80S
+r5t,Renault 5 Turbo,RALLY,80S
+131,Fiat 131 Abarth,RALLY,70S
+cme,Ford Escort Mk2,RALLY,70S
+str,Lancia Stratos,RALLY,70S
+kad,Opel kadett GT/E V16,RALLY,70S
+ful,Lancia Fulvia HF,RALLY,60S
+mcs,Mini Cooper S,RALLY,60S
+alp,Renault Alpine A110 1600S,RALLY,60S
+bow,Bowler Nemesis,RALLY,RAID
+hh3,Hummer H3,RALLY,RAID
+lan,Mitsubishi Racing Lancer,RALLY,RAID
+vwt,Volkswagen Race Touareg 2,RALLY,RAID
+c4x,Citroen C4 RallyX,RALLYCROSS,RALLYCROSS
+frx,Ford Fiesta Rallycross,RALLYCROSS,RALLYCROSS
+fox,Ford Focus ST RallyX,RALLYCROSS,RALLYCROSS
+rs2,Ford RS200 RallyX,RALLYCROSS,RALLYCROSS
+6r4,MG Metro 6R4 RallyX,RALLYCROSS,RALLYCROSS
+mex,Mitsubishi Lancer Evolution X,RALLYCROSS,RALLYCROSS
+20x,Peugeot 207 T16 4x4,RALLYCROSS,RALLYCROSS
+stx,Subaru Impreza WRX STI GR Rallycross,RALLYCROSS,RALLYCROSS
+bmt,BMW Z4 M Coupe Motorsport,TRAILBLAZER,MODERN
+cam,Chevrolet Camaro SSX Concept,TRAILBLAZER,MODERN
+fpp,Ford Fiesta OMSE Hillclimb Special,TRAILBLAZER,MODERN
+mus,Ford Mustang GTR,TRAILBLAZER,MODERN
+sx4,Monster Sport SX4 Hillclimb Special,TRAILBLAZER,MODERN
+rmt,Rhys Millen Racing PM580,TRAILBLAZER,MODERN
+aqp,Audi Quattro S1 Pikes Peak,TRAILBLAZER,CLASSIC
+405,Peugeot 405 T16 Pikes Peak,TRAILBLAZER,CLASSIC
+tac,Toyota Tacoma,TRAILBLAZER,CLASSIC
+fgk,Ford Fiesta Gymkhana 3,GYMKHANA,GYMKHANA
+mck,Gymkhana Mini,GYMKHANA,GYMKHANA
+mgk,Mitsubishi Lancer Evolution X Jun,GYMKHANA,GYMKHANA
+sky,Saturn Sky,GYMKHANA,GYMKHANA
+stc,Scion tC,GYMKHANA,GYMKHANA
+igk,Subaru Impreza WRX STI GD Gymkhana,GYMKHANA,GYMKHANA
+gym,Subaru Impreza WRX STI GR Gymkhana,GYMKHANA,GYMKHANA
+fst,Stadium Truck,LANDRUSH,TRUCKS
+fsb,Stadium Buggy,LANDRUSH,BUGGIES
+dmy,Dummy,DUMMY,DUMMY
