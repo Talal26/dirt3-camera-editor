@@ -5,11 +5,19 @@
 # TODO: Backups
 # TODO: Adding roof cameras
 
-from pathlib import WindowsPath, Path
+import tomllib
+from pathlib import Path
 
 import pandas as pd
 from PySide6 import QtWidgets, QtGui, QtCore
-from helpers import models_directory, get_camera_list_from_car, get_fov_from_camera_index
+
+from helpers import get_camera_list_from_car, get_fov_from_camera_index
+
+with open("config.toml", "rb") as f:
+    config = tomllib.load(f)
+
+game_install_location = config["game_install_location"]
+models_directory = Path(game_install_location).joinpath("cars", "models")
 
 df = pd.read_csv("Cars.csv")
 
@@ -18,7 +26,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setWindowTitle("DiRT 3 Camera Editor")
         self.setCentralWidget(CentralWidget())
+        self.setMinimumWidth(300)
 
 
 class CentralWidget(QtWidgets.QWidget):
@@ -54,7 +64,6 @@ class CentralWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(str)
     def car_changed(self, code: str):
-        print(code)
         self.current_car = code
         cameras = get_camera_list_from_car(models_directory.joinpath(code))
         self.camera_list_model.clear()
@@ -74,7 +83,7 @@ class CentralWidget(QtWidgets.QWidget):
 class CarSelector(QtWidgets.QGroupBox):
     """
     Contains dropdown menus for discpline, car class, and specific cars
-    Emits a signal when car selection is changed
+    Emits signal when car selection is changed
     """
 
     car_selected = QtCore.Signal(str)
@@ -152,14 +161,6 @@ class CarSelector(QtWidgets.QGroupBox):
         """Triggers the car_selected signal"""
 
         self.car_selected.emit(self.cars.iloc[car_index]["Code"])
-
-
-class CameraList(QtWidgets.QComboBox):
-    """
-    Dropdown list of cameras for a single car
-    """
-    def __init__(self):
-        super().__init__()
 
 
 class CameraEditor(QtWidgets.QGroupBox):
