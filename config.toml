@@ -1,0 +1,4 @@
+game_install_location = "D:\\SteamLibrary\\steamapps\\common\\DiRT 3 Complete Edition"
+
+[camera_parameters]
+fov = ".//Parameter[@name='fov']"
