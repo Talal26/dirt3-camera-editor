@@ -12,7 +12,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 
 from appstate import AppState
 
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -184,35 +184,67 @@ class CameraEditor(QtWidgets.QGroupBox):
         layout = QtWidgets.QVBoxLayout()
         self.setTitle("Camera Parameters")
 
-        for key, value in self.state.params.items():
-            sublayout = QtWidgets.QHBoxLayout()
+        self.widgets = {}
 
-            label = QtWidgets.QLabel(f"{key}:", self)
+        for key, value in self.state.params[self.state.current_camera].items():
+            widget = ParameterField(key, value["value"], self)
+            layout.addWidget(widget)
+            self.widgets[key] = widget
 
-            field = QtWidgets.QLineEdit(value, self)
-            field.setObjectName(key)
-            field.editingFinished.connect(self.edit_params)
-
-            sublayout.addWidget(label)
-            sublayout.addWidget(field)
-
-            layout.addLayout(sublayout)
+            widget.editingFinished.connect(self.edit_params)
 
         self.setLayout(layout)
 
     def refresh(self):
-        for key, value in self.state.params.items():
-            field = self.findChild(QtWidgets.QLineEdit, key)
-            field.setText(value)
+        # Create or enable widget for each paramater for this camera
+        for widget in self.widgets.values():
+            widget.hide()
 
-    def edit_params(self):
+        for key,value in self.state.params[self.state.current_camera].items():
+            param_name = key
+            param_type = value["type"]
+            param_value = value["value"]
+
+            # First check if layout exists
+            if param_name in self.widgets:
+                widget = self.widgets[param_name]
+                widget.show()
+                widget.set_value(param_value)
+
+
+    def edit_params(self, param_name: str, value: str):
         logging.debug("edit_params ran")
 
-        params = {}
-        for child in self.findChildren(QtWidgets.QLineEdit):
-            params[child.objectName()] = child.text()
+        self.state.edit_param(param_name, value)
 
-        self.state.edit_params(params)
+        self.state.params[self.state.current_camera][param_name]["value"] = value
+
+
+class ParameterField(QtWidgets.QWidget):
+    editingFinished = QtCore.Signal(str, str)
+
+    def __init__(self, param_name: str, initial_value: str = "", parent: QtWidgets.QWidget | None = None):
+        super().__init__(parent=parent)
+
+        self.param_name = param_name
+
+        layout = QtWidgets.QHBoxLayout()
+
+        label = QtWidgets.QLabel(f"{param_name}:", self)
+
+        self.field = QtWidgets.QLineEdit(initial_value, self)
+        self.field.editingFinished.connect(self.send_signal)
+
+        layout.addWidget(label)
+        layout.addWidget(self.field)
+
+        self.setLayout(layout)
+
+    def set_value(self, value: str):
+        self.field.setText(value)
+
+    def send_signal(self):
+        self.editingFinished.emit(self.param_name, self.field.text())
 
 
 class ButtonRow(QtWidgets.QWidget):

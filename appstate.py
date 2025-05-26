@@ -1,6 +1,7 @@
 import logging
 import typing
 from pathlib import Path
+from pprint import pprint
 from xml.etree import ElementTree as ET
 
 import pandas as pd
@@ -19,7 +20,7 @@ class AppState(QtCore.QObject):
         self.df = dataframe
         self.models_directory = Path(config["game_install_location"]).joinpath("cars", "models")
 
-        self.camera_parameters: dict = config["camera_parameters"]
+        self.parameter_config: dict = config["camera_parameters"]
 
         self.disciplines = self.df["Discipline"].unique()
         self.current_discipline = 0
@@ -31,6 +32,8 @@ class AppState(QtCore.QObject):
         self.tree = ET.parse(self.file_path)
 
         self.current_camera = 0
+
+        self.params = self.fetch_params()
 
         self.edited = False
 
@@ -51,6 +54,7 @@ class AppState(QtCore.QObject):
         self.change_camera(0)
         self.fetch_cameras()
         self.refresh_camera_selection.emit()
+        self.params = self.fetch_params()
         self.refresh_params.emit()
 
         self.edited = False
@@ -61,11 +65,10 @@ class AppState(QtCore.QObject):
         self.refresh_params.emit()
 
     @QtCore.Slot(dict)
-    def edit_params(self, params: dict):
+    def edit_param(self, param_name: str, value: str):
         self.edited = True
 
-        for key, value in params.items():
-            self.cameras[self.current_camera].find(f".//Parameter[@name='{key}']").set("value", value)
+        self.params[self.current_camera][param_name]["value"] = value
 
         self.refresh_params.emit()
 
@@ -91,14 +94,34 @@ class AppState(QtCore.QObject):
 
         self.tree = ET.parse(self.file_path)
 
-    @property
-    def params(self) -> dict:
+    def fetch_params(self) -> dict[int, dict]:
         params = {}
-        for key, value in self.camera_parameters.items():
-            try:
-                params[key] = self.cameras[self.current_camera].find(value).get("value")
-            except AttributeError:
-                pass
+        for index, camera in enumerate(self.cameras):
+            camera_dict = {}
+
+            for key, value in self.parameter_config.items():
+                parameter_dict = {}
+                try:
+                    element = camera.find(value)
+                    parameter_type = element.get("type")
+                except AttributeError:  # Parameter is not present in this camera
+                    continue
+
+                parameter_dict["type"] = parameter_type
+                match parameter_type:
+                    case "scalar":
+                        parameter_dict["value"] = element.get("value")
+                    case "bool":
+                        parameter_dict["value"] = element.get("value")
+                    case "vector3":
+                        parameter_dict["x"] = element.get("x")
+                        parameter_dict["y"] = element.get("y")
+                        parameter_dict["z"] = element.get("z")
+
+                camera_dict[key] = parameter_dict
+
+            params[index] = camera_dict
+
         return params
 
     @property
@@ -108,6 +131,12 @@ class AppState(QtCore.QObject):
     @QtCore.Slot(dict)
     def save(self):
         logging.debug(f"saving for car code: {self.current_car_code}")
+
+        # Modify tree
+        for index, camera in enumerate(self.cameras):
+            for parameter, value in self.params[index].items():
+                element = camera.find(self.parameter_config[parameter])
+                element.set("value", value["value"])
 
         self.tree.write(self.file_path, xml_declaration=True, encoding="UTF-8")
 
