@@ -181,19 +181,15 @@ class CameraEditor(QtWidgets.QGroupBox):
         self.state = state
         self.state.refresh_params.connect(self.refresh)
 
-        layout = QtWidgets.QVBoxLayout()
+        self.layout = QtWidgets.QVBoxLayout()
         self.setTitle("Camera Parameters")
 
         self.widgets = {}
 
         for key, value in self.state.params[self.state.current_camera].items():
-            widget = ParameterField(key, value["value"], self)
-            layout.addWidget(widget)
-            self.widgets[key] = widget
+            self.create_field(key, value["value"])
 
-            widget.editingFinished.connect(self.edit_params)
-
-        self.setLayout(layout)
+        self.setLayout(self.layout)
 
     def refresh(self):
         # Create or enable widget for each paramater for this camera
@@ -206,17 +202,25 @@ class CameraEditor(QtWidgets.QGroupBox):
             param_value = value["value"]
 
             # First check if layout exists
-            if param_name in self.widgets:
-                widget = self.widgets[param_name]
-                widget.show()
-                widget.set_value(param_value)
+            if param_name not in self.widgets:
+                self.create_field(param_name, param_value)
+
+            widget = self.widgets[param_name]
+            widget.show()
+            widget.set_value(param_value)
+
+    def create_field(self, param_name: str, param_value: str):
+        widget = ParameterField(param_name, param_value, self)
+        self.layout.addWidget(widget)
+        self.widgets[param_name] = widget
+
+        widget.editingFinished.connect(self.edit_params)
 
 
     def edit_params(self, param_name: str, value: str):
-        logging.debug("edit_params ran")
+        logging.debug(f"params edited: {param_name} = {value}")
 
         self.state.edit_param(param_name, value)
-
         self.state.params[self.state.current_camera][param_name]["value"] = value
 
 
