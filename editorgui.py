@@ -3,6 +3,9 @@
 # TODO: ego file conversion
 # TODO: Backups
 # TODO: Adding roof cameras
+# TODO: Unsaved changes pop-up window
+# TODO: Handling for if unknown car is in game files or car doesn't have cameras.xml file
+# TODO: Human-friendly names for parameters, cameras, and maybe car classes
 
 import logging
 import tomllib
@@ -19,11 +22,21 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, state: AppState):
         super().__init__()
 
-        state.close_application.connect(self.close)
+        self.state = state
+
+        self.state.close_application.connect(self.close)
+        self.state.save_successful.connect(self.save_successful_popup)
 
         self.setWindowTitle("DiRT 3 Camera Editor")
-        self.setCentralWidget(CentralWidget(state))
+        self.setCentralWidget(CentralWidget(self.state))
         self.setMinimumWidth(300)
+
+    def save_successful_popup(self):
+        QtWidgets.QMessageBox.information(
+            self,
+            "Save Succesful!",
+            f"Successfully saved changes for {self.state.current_car["Name"]}"
+        )
 
 
 class CentralWidget(QtWidgets.QWidget):
@@ -127,7 +140,7 @@ class CarSelector(QtWidgets.QGroupBox):
         for car in self.state.cars["Name"]:
             self.cars_model.appendRow(QtGui.QStandardItem(car))
 
-        self.cars_dropdown.setCurrentIndex(self.state.current_car)
+        self.cars_dropdown.setCurrentIndex(self.state.current_car_index)
 
         self.classes_dropdown.blockSignals(False)
         self.cars_dropdown.blockSignals(False)

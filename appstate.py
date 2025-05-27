@@ -1,7 +1,6 @@
 import logging
 import typing
 from pathlib import Path
-from pprint import pprint
 from xml.etree import ElementTree as ET
 
 import pandas as pd
@@ -14,6 +13,7 @@ class AppState(QtCore.QObject):
     refresh_params = QtCore.Signal()
 
     close_application = QtCore.Signal()
+    save_successful = QtCore.Signal()
 
     def __init__(self, dataframe: pd.DataFrame, config: dict[str, typing.Any]):
         super().__init__()
@@ -27,7 +27,7 @@ class AppState(QtCore.QObject):
 
         self.current_class = 0
 
-        self.current_car = 0
+        self.current_car_index = 0
 
         self.tree = ET.parse(self.file_path)
 
@@ -49,7 +49,7 @@ class AppState(QtCore.QObject):
 
     @QtCore.Slot(int)
     def change_car(self, index: int):
-        self.current_car = index
+        self.current_car_index = index
         self.refresh_car_selection.emit()
         self.change_camera(0)
         self.fetch_cameras()
@@ -82,7 +82,11 @@ class AppState(QtCore.QObject):
 
     @property
     def current_car_code(self):
-        return self.cars.iloc[self.current_car]["Code"]
+        return self.cars.iloc[self.current_car_index]["Code"]
+
+    @property
+    def current_car(self):
+        return self.cars.iloc[self.current_car_index]
 
     @property
     def cameras(self) -> ET.Element:
@@ -139,6 +143,8 @@ class AppState(QtCore.QObject):
                 element.set("value", value["value"])
 
         self.tree.write(self.file_path, xml_declaration=True, encoding="UTF-8")
+
+        self.save_successful.emit()
 
     def close(self):
         self.close_application.emit()
