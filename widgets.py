@@ -1,42 +1,9 @@
-# TODO: More camera params
-# TODO: Game folder configuration
-# TODO: ego file conversion
-# TODO: Backups
-# TODO: Adding roof cameras
-# TODO: Unsaved changes pop-up window
-# TODO: Handling for if unknown car is in game files or car doesn't have cameras.xml file
-# TODO: Human-friendly names for parameters, cameras, and maybe car classes
-
 import logging
-import tomllib
 
 import pandas as pd
 from PySide6 import QtWidgets, QtGui, QtCore
 
 from appstate import AppState
-
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
-
-
-class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, state: AppState):
-        super().__init__()
-
-        self.state = state
-
-        self.state.close_application.connect(self.close)
-        self.state.save_successful.connect(self.save_successful_popup)
-
-        self.setWindowTitle("DiRT 3 Camera Editor")
-        self.setCentralWidget(CentralWidget(self.state))
-        self.setMinimumWidth(300)
-
-    def save_successful_popup(self):
-        QtWidgets.QMessageBox.information(
-            self,
-            "Save Succesful!",
-            f"Successfully saved changes for {self.state.current_car["Name"]}"
-        )
 
 
 class CentralWidget(QtWidgets.QWidget):
@@ -282,21 +249,3 @@ class ButtonRow(QtWidgets.QWidget):
 
         layout.addWidget(save_button)
         layout.addWidget(close_button)
-
-
-def main():
-    app = QtWidgets.QApplication()
-
-    df = pd.read_csv("Cars.csv")
-    with open("config.toml", "rb") as f:
-        config = tomllib.load(f)
-
-    state = AppState(df, config)
-
-    window = MainWindow(state)
-    window.show()
-    exit(app.exec())
-
-
-if __name__ == '__main__':
-    main()

@@ -1,27 +1,37 @@
-from os import PathLike
+# TODO: More camera params
+# TODO: Game folder configuration
+# TODO: ego file conversion
+# TODO: Backups
+# TODO: Adding roof cameras
+# TODO: Unsaved changes pop-up window
+# TODO: Handling for if unknown car is in game files or car doesn't have cameras.xml file
+# TODO: Human-friendly names for parameters, cameras, and maybe car classes
 
-from helpers import iter_cam_files, Cameras
-from xml.etree import ElementTree as ET
+import logging
+import tomllib
+
+import pandas as pd
+from PySide6 import QtWidgets
+
+from appstate import AppState
+from window import MainWindow
+
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
 
 
-def camera_mod(camera_file: str | PathLike[str]) -> None:
-    tree = ET.parse(camera_file)
-    root = tree.getroot()
+def main():
+    app = QtWidgets.QApplication()
 
-    for camera in root.find("ViewManager"):
-        if camera.get("ident") in [Cameras.BONNET2, Cameras.CHASE_CLOSE, Cameras.COCKPIT]:
-            camera.set("hidden", "false")
-        else:
-            camera.set("hidden", "true")
+    df = pd.read_csv("Cars.csv")
+    with open("config.toml", "rb") as f:
+        config = tomllib.load(f)
 
-    tree.write(camera_file, xml_declaration=True, encoding="UTF-8")
+    state = AppState(df, config)
+
+    window = MainWindow(state)
+    window.show()
+    exit(app.exec())
 
 
-for cam_file in iter_cam_files():
-    try:
-        camera_mod(cam_file)
-    except Exception as e:
-        print(f"Encountered error converting file: {cam_file}")
-        print(e)
-    else:
-        print(f"Succesfully converted file {cam_file}")
+if __name__ == '__main__':
+    main()
