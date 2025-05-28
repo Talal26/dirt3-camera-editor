@@ -1,6 +1,5 @@
 import logging
 
-import pandas as pd
 from PySide6 import QtWidgets, QtGui, QtCore
 
 from appstate import AppState
@@ -10,32 +9,22 @@ class CentralWidget(QtWidgets.QWidget):
     def __init__(self, state: AppState):
         super().__init__()
 
-        self.state = state
+        layout = QtWidgets.QVBoxLayout()
 
-        self.layout = QtWidgets.QVBoxLayout()
+        car_selector = CarSelector(state)
 
-        # Car Selector
-        car_selector = CarSelector(self.state)
+        camera_selector = CameraSelector(state)
 
-        # Car List Dropdown
-        self.current_car: str = ""
+        camera_editor = CameraEditor(state)
 
-        # Camera List Dropdown
-        self.camera_selector = CameraSelector(state)
+        button_row = ButtonRow(state)
+        button_row.save_clicked.connect(state.save)
 
-        # Camera Editor
-        self.camera_editor = CameraEditor(self.state)
-
-        # Button Row
-        self.button_row = ButtonRow(self.state)
-        self.button_row.save_clicked.connect(self.state.save)
-
-        # Setting Layout
-        self.layout.addWidget(car_selector)
-        self.layout.addWidget(self.camera_selector)
-        self.layout.addWidget(self.camera_editor)
-        self.layout.addWidget(self.button_row)
-        self.setLayout(self.layout)
+        layout.addWidget(car_selector)
+        layout.addWidget(camera_selector)
+        layout.addWidget(camera_editor)
+        layout.addWidget(button_row)
+        self.setLayout(layout)
 
 
 class CarSelector(QtWidgets.QGroupBox):
@@ -72,7 +61,6 @@ class CarSelector(QtWidgets.QGroupBox):
         self.classes_dropdown.currentIndexChanged.connect(self.state.change_class)
 
         # Car Dropdown
-        self.cars: pd.DataFrame | None = None
         self.cars_model = QtGui.QStandardItemModel()
         self.cars_dropdown = QtWidgets.QComboBox()
         self.cars_dropdown.setModel(self.cars_model)
@@ -115,7 +103,7 @@ class CarSelector(QtWidgets.QGroupBox):
 
 class CameraSelector(QtWidgets.QGroupBox):
     """
-    Contains dropdown selector for camera
+    Dropdown to select camera
     """
     def __init__(self, state: AppState):
         super().__init__()
@@ -126,18 +114,18 @@ class CameraSelector(QtWidgets.QGroupBox):
         self.setTitle("Select Camera")
 
         layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
 
         self.model = QtGui.QStandardItemModel()
         self.dropdown = QtWidgets.QComboBox()
         self.dropdown.setModel(self.model)
+        self.dropdown.currentIndexChanged.connect(self.state.change_camera)
 
         for camera in self.state.cameras:
             self.model.appendRow(QtGui.QStandardItem(camera.get("ident")))
 
-        self.dropdown.currentIndexChanged.connect(self.state.change_camera)
-
         layout.addWidget(self.dropdown)
+
+        self.setLayout(layout)
 
     @QtCore.Slot()
     def refresh(self):
@@ -153,7 +141,7 @@ class CameraSelector(QtWidgets.QGroupBox):
 
 class CameraEditor(QtWidgets.QGroupBox):
     """
-    Widget containing fields to edit the camera parameters
+    Fields to edit the camera parameters
     """
     def __init__(self, state: AppState):
         super().__init__()
@@ -205,6 +193,10 @@ class CameraEditor(QtWidgets.QGroupBox):
 
 
 class ParameterField(QtWidgets.QWidget):
+    """
+    A single QLineEdit with a label
+    Sends a signal when editing is finished
+    """
     editingFinished = QtCore.Signal(str, str)
 
     def __init__(self, param_name: str, initial_value: str = "", parent: QtWidgets.QWidget | None = None):
@@ -232,6 +224,9 @@ class ParameterField(QtWidgets.QWidget):
 
 
 class ButtonRow(QtWidgets.QWidget):
+    """
+    Save and close buttons
+    """
     save_clicked = QtCore.Signal()
     close_clicked = QtCore.Signal()
 
@@ -239,7 +234,6 @@ class ButtonRow(QtWidgets.QWidget):
         super().__init__()
 
         layout = QtWidgets.QHBoxLayout()
-        self.setLayout(layout)
 
         save_button = QtWidgets.QPushButton("Save", self)
         save_button.clicked.connect(self.save_clicked)
@@ -249,3 +243,5 @@ class ButtonRow(QtWidgets.QWidget):
 
         layout.addWidget(save_button)
         layout.addWidget(close_button)
+
+        self.setLayout(layout)

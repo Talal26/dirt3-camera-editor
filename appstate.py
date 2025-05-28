@@ -29,7 +29,7 @@ class AppState(QtCore.QObject):
 
         self.current_car_index = 0
 
-        self.tree = ET.parse(self.file_path)
+        self.tree = self.fetch_cameras()
 
         self.current_camera = 0
 
@@ -52,7 +52,7 @@ class AppState(QtCore.QObject):
         self.current_car_index = index
         self.refresh_car_selection.emit()
         self.change_camera(0)
-        self.fetch_cameras()
+        self.tree = self.fetch_cameras()
         self.refresh_camera_selection.emit()
         self.params = self.fetch_params()
         self.refresh_params.emit()
@@ -93,10 +93,10 @@ class AppState(QtCore.QObject):
         root = self.tree.getroot()
         return root.find("ViewManager")
 
-    def fetch_cameras(self) -> None:
+    def fetch_cameras(self) -> ET:
         logging.debug(f"fetching camera information for {self.current_car_code}")
 
-        self.tree = ET.parse(self.file_path)
+        return ET.parse(self.file_path)
 
     def fetch_params(self) -> dict[int, dict]:
         params = {}
