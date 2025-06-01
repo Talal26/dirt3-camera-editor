@@ -14,6 +14,7 @@ class AppState(QtCore.QObject):
 
     close_application = QtCore.Signal()
     save_successful = QtCore.Signal()
+    save_unsuccessful = QtCore.Signal(Exception)
 
     def __init__(self, dataframe: pd.DataFrame, config: dict[str, typing.Any]):
         super().__init__()
@@ -106,12 +107,14 @@ class AppState(QtCore.QObject):
             for key, value in self.parameter_config.items():
                 parameter_dict = {}
                 try:
-                    element = camera.find(value)
+                    element = camera.find(value["path"])
                     parameter_type = element.get("type")
                 except AttributeError:  # Parameter is not present in this camera
                     continue
 
                 parameter_dict["type"] = parameter_type
+                parameter_dict["alias"] = value["alias"]
+
                 match parameter_type:
                     case "scalar":
                         parameter_dict["value"] = element.get("value")
@@ -136,15 +139,20 @@ class AppState(QtCore.QObject):
     def save(self):
         logging.debug(f"saving for car code: {self.current_car_code}")
 
-        # Modify tree
-        for index, camera in enumerate(self.cameras):
-            for parameter, value in self.params[index].items():
-                element = camera.find(self.parameter_config[parameter])
-                element.set("value", value["value"])
+        try:
+            # Modify tree
+            for index, camera in enumerate(self.cameras):
+                for parameter, value in self.params[index].items():
+                    print(parameter)
+                    element = camera.find(self.parameter_config[parameter]["path"])
+                    element.set("value", value["value"])
 
-        self.tree.write(self.file_path, xml_declaration=True, encoding="UTF-8")
-
-        self.save_successful.emit()
+            self.tree.write(self.file_path, xml_declaration=True, encoding="UTF-8")
+        except Exception as e:
+            self.save_unsuccessful.emit(e)
+            raise e
+        else:
+            self.save_successful.emit()
 
     def close(self):
         self.close_application.emit()

@@ -5,7 +5,7 @@
 # TODO: Adding roof cameras
 # TODO: Unsaved changes pop-up window
 # TODO: Handling for if unknown car is in game files or car doesn't have cameras.xml file
-# TODO: Human-friendly names for parameters, cameras, and maybe car classes
+# TODO: Human-friendly names for cameras, and maybe car classes
 
 import logging
 import tomllib

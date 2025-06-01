@@ -155,7 +155,7 @@ class CameraEditor(QtWidgets.QGroupBox):
         self.widgets = {}
 
         for key, value in self.state.params[self.state.current_camera].items():
-            self.create_field(key, value["value"])
+            self.create_field(key, value["alias"], value["value"])
 
         self.setLayout(self.layout)
 
@@ -165,22 +165,23 @@ class CameraEditor(QtWidgets.QGroupBox):
             widget.hide()
 
         for key,value in self.state.params[self.state.current_camera].items():
-            param_name = key
+            param_key = key
+            param_alias = value["alias"]
             param_type = value["type"]
             param_value = value["value"]
 
             # First check if layout exists
-            if param_name not in self.widgets:
-                self.create_field(param_name, param_value)
+            if param_key not in self.widgets:
+                self.create_field(param_key, param_value)
 
-            widget = self.widgets[param_name]
+            widget = self.widgets[param_key]
             widget.show()
             widget.set_value(param_value)
 
-    def create_field(self, param_name: str, param_value: str):
-        widget = ParameterField(param_name, param_value, self)
+    def create_field(self, param_key: str, param_alias: str, param_value: str):
+        widget = ParameterField(param_key, param_alias, param_value, self)
         self.layout.addWidget(widget)
-        self.widgets[param_name] = widget
+        self.widgets[param_key] = widget
 
         widget.editingFinished.connect(self.edit_params)
 
@@ -199,14 +200,14 @@ class ParameterField(QtWidgets.QWidget):
     """
     editingFinished = QtCore.Signal(str, str)
 
-    def __init__(self, param_name: str, initial_value: str = "", parent: QtWidgets.QWidget | None = None):
+    def __init__(self, param_key: str, param_label: str, initial_value: str = "", parent: QtWidgets.QWidget | None = None):
         super().__init__(parent=parent)
 
-        self.param_name = param_name
+        self.param_key = param_key
 
         layout = QtWidgets.QHBoxLayout()
 
-        label = QtWidgets.QLabel(f"{param_name}:", self)
+        label = QtWidgets.QLabel(f"{param_label}:", self)
 
         self.field = QtWidgets.QLineEdit(initial_value, self)
         self.field.editingFinished.connect(self.send_signal)
@@ -220,7 +221,7 @@ class ParameterField(QtWidgets.QWidget):
         self.field.setText(value)
 
     def send_signal(self):
-        self.editingFinished.emit(self.param_name, self.field.text())
+        self.editingFinished.emit(self.param_key, self.field.text())
 
 
 class ButtonRow(QtWidgets.QWidget):
